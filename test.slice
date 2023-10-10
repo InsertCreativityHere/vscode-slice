@@ -1,0 +1,174 @@
+
+#if Thing && Stuff || things (!Hello) // Done
+
+#else // stuff
+
+#define Hello There      //There is good
+#undef &Stuff here
+
+#if #define Ther
+
+#elif 7 && HELLO /* */
+
+// this is a normal comment
+
+/* another normal comment*/ #if // but this is okay
+
+/** @see Here 
+multi lines!!
+#define
+*/
+
+
+module Hello
+module ,Hello::There
+module ::Stuff::Things::
+
+
+typealias MyType = [whatever("stuff\n")] uint8
+typealias MyType = ::MyThing::IsCool
+typealias Thing = Slice2
+typealias int16 = [kewl] int16
+typealias int8 ::Stuff
+typealias \int8 = \Stuff
+
+typealias Sutff = :\Things:\:\Stuff::Whatever::\
+
+
+mode /***/what?  = Slice1 or Slice2
+
+mode=Slice1
+
+struct Hi {}
+
+mode =
+
+struct Hi {}
+
+mode
+
+
+
+
+Sequence< int16 >
+Sequence< ::hELLO >
+
+Sequence< [int17] stuff /*whatevcer**/, things >
+
+Dictionary<int8, int8>
+Dictionary<, stuff>
+Dictionary<Gewd, [woah] ::Things>
+
+
+
+
+
+/// Doc land now @see here Austin
+///@see ItWorks Here  
+///    @see Stuff is happening
+///    @see ::Stuff::What is happening
+///  @see Words::Here:: woah thats cool
+/// Something {} looks cool here
+/// Something { @ } looks cool here
+/// Something {@link Stuff} looks cool here
+/// Something {  @link   Stuff::Things   } looks cool here
+/// Something {  @link   Stuff::Things::   Hey!   } looks cool here
+
+[[ice::is_a/*hello*/::these]]
+[cool][stuff here]///works just fine {@link Thing}
+module Hello::There
+
+module mode
+
+
+[ it::works (args, /**/ Slice23, "this is \"cool\" \\ /**/ some &*&*&*// would say!") woah ::dir /**/ (but bad here /**/)]
+struct MyStruct {}
+compact struct MyStruct: Thing {}
+
+exception MyException {}
+exception MyException: Thing {}
+
+class HelloClass {}
+class HelloClass: ::0Whatever {}
+class HelloClass(0b100) {}
+class HelloClass(-0x77d): MyClass::Rocks::Lots {}
+
+compact
+idempotent
+stream
+tag
+throws
+unchecked
+
+interface Stuff {
+
+}
+
+
+interface Whatever: Stuff, Things::, What::There {
+
+}
+
+interface Thing: Other {
+    op() -> int32
+    MyOperation(hello: String, [things] woah: stream uint8) -> /**/ (
+        stuff: [things] 
+        ::Happening::Here
+    ) throws MyException, AnotherException
+}
+
+enum module {}
+enum \module {}
+
+
+enum Hello {
+    Stuff,
+    Things = 7
+    Whatever Things
+}
+
+enum Bar {}
+
+enum
+Stuff
+:
+uint16
+{
+
+}
+
+enum Whatever : Hello::\There::\int8::int8 {}
+
+struct Hi {
+    param: Typr,
+    uint8: uint8,
+    \uint8: uint8,
+    0thing: Whageer,
+}
+
+
+
+[[bad
+attribute
+[bad(hello there] stuff
+
+/// @param: this is a param
+///@param Hello_There: this is my section now
+/// @param Foo::Bar
+/// @param%&? Foo::Bar
+/// @param Hello&There: Foo::Bar
+/// @param Hello: this is {@link Cool}{@link ::Stuff} woah {@}
+
+/// @throws: this is a throws
+///@throws Hello_There: this is my section now
+/// @throws Foo::Bar
+/// @throws%&? Foo::Bar
+/// @throws Hello&There: Foo::Bar
+/// @throws Hello: this is {@link Cool}{@link Stuff::Hey} woah {@param }
+
+/// @returns: this is a returns
+///@returns Hello_There: this is my section now
+/// @returns Foo::Bar
+/// @returns%&? Foo::Bar
+/// @returns Hello&There: Foo::Bar
+/// @returns Hello: this is {@link Cool}{@link Stuff} woah {@param Stuff::}

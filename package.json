@@ -20,7 +20,7 @@
         "languages": [{
             "id": "slice",
             "aliases": ["Slice", "slice"],
-            "extensions": [".ice"],
+            "extensions": [".slice"],
             "configuration": "./language-configuration.json"
         }],
         "grammars": [{
