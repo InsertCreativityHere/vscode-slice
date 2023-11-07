@@ -118,34 +118,50 @@ impl LanguageServer for Backend {
         &self,
         params: GotoDefinitionParams,
     ) -> tower_lsp::jsonrpc::Result<Option<GotoDefinitionResponse>> {
-        let param_uri = params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
-        let compilation_state = &self.shared_state.lock().await.compilation_state;
 
-        let location = match get_definition_span(&compilation_state, param_uri, position) {
-            Some(location) => location,
-            None => return Ok(None),
-        };
+        let mut message;
+        let response;
+        {
+            let param_uri = params.text_document_position_params.text_document.uri;
+            let position = params.text_document_position_params.position;
+            let compilation_state = &self.shared_state.lock().await.compilation_state;
 
-        let start = Position {
-            line: (location.start.row - 1) as u32,
-            character: (location.start.col - 1) as u32,
-        };
+            let (location, m) = get_definition_span(&compilation_state, param_uri, position);
+            message = m;
 
-        let end = Position {
-            line: (location.end.row - 1) as u32,
-            character: (location.end.col - 1) as u32,
-        };
+            let location = match location {
+                Some(l) => l,
+                None => return Ok(None),
+            };
 
-        let uri = match Url::from_file_path(location.file) {
-            Ok(uri) => uri,
-            Err(_) => return Ok(None),
-        };
+            let start = Position {
+                line: (location.start.row - 1) as u32,
+                character: (location.start.col - 1) as u32,
+            };
 
-        Ok(Some(GotoDefinitionResponse::Scalar(Location {
-            uri,
-            range: Range::new(start, end),
-        })))
+            let end = Position {
+                line: (location.end.row - 1) as u32,
+                character: (location.end.col - 1) as u32,
+            };
+
+            message.push_str("\n\n Hey we're back in main now and about to do 'from_file_path'\n");
+            let uri = match Url::from_file_path(location.file) {
+                Ok(uri) => uri,
+                Err(_) => return Ok(None),
+            };
+            message.push_str("If you see this, from_file_path worked!");
+
+            response = GotoDefinitionResponse::Scalar(Location {
+                uri,
+                range: Range::new(start, end),
+            });
+        }
+
+        self.client
+            .log_message(MessageType::INFO, message)
+            .await;
+
+        Ok(Some(response))
     }
 
     async fn hover(&self, params: HoverParams) -> tower_lsp::jsonrpc::Result<Option<Hover>> {
@@ -268,7 +284,8 @@ impl Backend {
             let result = self.client.configuration(params).await?;
             result
                 .get(0)
-                .and_then(|v| v.as_str().map(|s| s.to_string()))
+                .and_then(|v| v.as_str()
+                .map(|s| s.to_string()))
                 .ok_or(None)?
         };
 

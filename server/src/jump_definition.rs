@@ -12,22 +12,52 @@ use slicec::{
 };
 use tower_lsp::lsp_types::{Position, Url};
 
-pub fn get_definition_span(state: &CompilationState, uri: Url, position: Position) -> Option<Span> {
-    // Attempt to convert the URL to a file path and then to a string
-    let file_path = uri.to_file_path().ok()?.to_str()?.to_owned();
+pub fn get_definition_span(state: &CompilationState, uri: Url, position: Position) -> (Option<Span>, String) {
+    let mut log_message = String::new();
+    log_message.push_str(&format!("This is the uri that we're starting with: {uri:?}\n"));
 
-    // Attempt to retrieve the file from the state
-    let file = state.files.get(&file_path)?;
+    let file_path_part = uri.to_file_path().ok();
+    log_message.push_str(&format!("    We make it a file path: {file_path_part:?}\n"));
 
-    // Convert position to row and column to 1 based
-    let col = (position.character + 1) as usize;
-    let row = (position.line + 1) as usize;
-    let location = (row, col).into();
+    let file_path = file_path_part.and_then(|x| x.to_str().map(|y| y.to_owned()));
+    log_message.push_str(&format!("    And finally stringify it: {file_path:?}\n"));
 
-    let mut visitor = JumpVisitor::new(location);
-    file.visit_with(&mut visitor);
+    let file = match &file_path {
+        Some(path) => {
+            log_message.push_str(&format!("\nStarting the search...\n"));
+            match state.files.get(path) {
+                Some(worked) => {
+                    log_message.push_str(&format!("We found match!!! [search_path='{path:?}'] and [found_path='{}']\n", worked.relative_path));
+                    Some(worked)
+                }
+                None => {
+                    log_message.push_str(&format!("We didn't find a matching file...\n"));
+                    None
+                }
+            }
+        }
+        None => {
+            log_message.push_str(&format!("\nFile path didn't even exist... Nothing to look up\n"));
+            None
+        }
+    };
 
-    visitor.found_span
+    if let Some(thing) = file {
+        log_message.push_str(&format!("\nJUMPING TO THE FILE HOORAY!!!\n"));
+
+        // Convert position to row and column to 1 based
+        let col = (position.character + 1) as usize;
+        let row = (position.line + 1) as usize;
+        let location = (row, col).into();
+
+        let mut visitor = JumpVisitor::new(location);
+        thing.visit_with(&mut visitor);
+
+        (visitor.found_span, log_message)
+    } else {
+        log_message.push_str(&format!("\nWe are not jumping...\n"));
+        (None, log_message)
+    }
 }
 
 struct JumpVisitor {
