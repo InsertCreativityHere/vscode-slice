@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
 use crate::slice_config;
-use std::path::{Path, PathBuf};
 use std::collections::HashMap;
-use slice_config::SliceConfig;
+use slice_config::{ServerConfig, SliceConfig, compute_slice_options};
+use slicec::slice_options;
 use slicec::{ast::Ast, diagnostics::Diagnostic, slice_file::SliceFile};
 use slicec::compilation_state::CompilationState;
 
@@ -33,39 +33,26 @@ pub struct ConfigurationSet {
 }
 
 impl ConfigurationSet {
-    /// Creates a new `ConfigurationSet` using the given root and built-in-slice paths.
-    pub fn new(root_path: PathBuf, built_in_path: String) -> Self {
-        let mut slice_config = SliceConfig::default();
-        slice_config.set_workspace_root_path(root_path);
-        slice_config.set_built_in_slice_path(Some(built_in_path));
-
-        Self::create_and_compile(slice_config)
+    /// Creates a new `ConfigurationSet`.
+    pub fn new() -> Self {
+        Self::create_and_compile(SliceConfig::default())
     }
 
     /// Parses a vector of `ConfigurationSet` from a JSON array, root path, and built-in path.
-    pub fn parse_configuration_sets(
-        config_array: &[serde_json::Value],
-        root_path: &Path,
-        built_in_path: &str,
-    ) -> Vec<ConfigurationSet> {
+    pub fn parse_configuration_sets(config_array: &[serde_json::Value]) -> Vec<ConfigurationSet> {
         config_array
             .iter()
-            .map(|value| ConfigurationSet::from_json(value, root_path, built_in_path))
+            .map(|value| ConfigurationSet::from_json(value))
             .collect::<Vec<_>>()
     }
 
     /// Constructs a `ConfigurationSet` from a JSON value.
-    fn from_json(value: &serde_json::Value, root_path: &Path, built_in_path: &str) -> Self {
-        // Parse the paths and `include_built_in_types` from the configuration set
-        let paths = parse_paths(value);
-        let include_built_in = parse_include_built_in(value);
-
-        // Create the SliceConfig and CompilationState
-        let mut slice_config = SliceConfig::default();
-        slice_config.set_workspace_root_path(root_path.to_owned());
-        slice_config.set_built_in_slice_path(include_built_in.then(|| built_in_path.to_owned()));
-        slice_config.set_search_paths(paths);
-
+    fn from_json(value: &serde_json::Value) -> Self {
+        // Parse the paths and `include_built_in_types` into a `SliceConfig` struct.
+        let slice_config = SliceConfig {
+            slice_search_paths: parse_paths(value),
+            include_built_in_slice_files: parse_include_built_in(value),
+        };
         Self::create_and_compile(slice_config)
     }
 
@@ -80,9 +67,9 @@ impl ConfigurationSet {
         configuration_set
     }
 
-    pub fn trigger_compilation(&mut self) -> Vec<Diagnostic> {
+    pub fn trigger_compilation(&mut self, server_config: &ServerConfig) -> Vec<Diagnostic> {
         // Perform the compilation.
-        let slice_options = self.slice_config.as_slice_options();
+        let slice_options = &compute_slice_options(server_config, &self.slice_config);
         let compilation_state = slicec::compile_from_options(slice_options, |_| {}, |_| {});
         let CompilationState { ast, diagnostics, files } = compilation_state;
 
