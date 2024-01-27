@@ -32,14 +32,6 @@ impl Session {
     ) {
         let initialization_options = params.initialization_options;
 
-        // This is the path to the built-in Slice files that are included with the extension. It should always
-        // be present.
-        let built_in_slice_path = initialization_options
-            .as_ref()
-            .and_then(|opts| opts.get("builtInSlicePath"))
-            .and_then(|v| v.as_str().map(str::to_owned))
-            .expect("builtInSlicePath not found in initialization options");
-
         // Use the root_uri if it exists temporarily as we cannot access configuration until
         // after initialization. Additionally, LSP may provide the windows path with escaping or a lowercase
         // drive letter. To fix this, we convert the path to a URL and then back to a path.
@@ -49,6 +41,14 @@ impl Session {
             .and_then(|path| Url::from_file_path(path).ok())
             .and_then(|uri| uri.to_file_path().ok())
             .expect("`root_uri` was not sent by the client, or was malformed");
+
+        // This is the path to the built-in Slice files that are included with the extension. It should always
+        // be present.
+        let built_in_slice_path = initialization_options
+            .as_ref()
+            .and_then(|opts| opts.get("builtInSlicePath"))
+            .and_then(|v| v.as_str().map(str::to_owned))
+            .expect("builtInSlicePath not found in initialization options");
 
         // Load any user configuration from the 'slice.configurations' option.
         let configuration_sets = initialization_options
@@ -60,16 +60,16 @@ impl Session {
             })
             .unwrap_or_default();
 
-        *self.built_in_slice_path.write().await = built_in_slice_path;
         *self.root_path.write().await = Some(root_path);
+        *self.built_in_slice_path.write().await = built_in_slice_path;
         self.update_configurations(configuration_sets).await;
     }
 
     // Update the configuration sets from the `DidChangeConfigurationParams` notification.
     pub async fn update_configurations_from_params(&self, params: DidChangeConfigurationParams) {
-        let built_in_path = &self.built_in_slice_path.read().await;
         let root_path_guard = self.root_path.read().await;
         let root_path = (*root_path_guard).clone().expect("root_path not set");
+        let built_in_path = &self.built_in_slice_path.read().await;
 
         // Parse the configurations from the notification
         let configurations = params
