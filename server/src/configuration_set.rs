@@ -4,8 +4,8 @@ use crate::slice_config;
 use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 use slice_config::SliceConfig;
-use slicec::{ast::Ast, diagnostics::Diagnostic, slice_file::SliceFile};
 use slicec::compilation_state::CompilationState;
+use slicec::{ast::Ast, diagnostics::Diagnostic, slice_file::SliceFile};
 
 #[derive(Debug)]
 pub struct CompilationData {

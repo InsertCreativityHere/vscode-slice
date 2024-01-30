@@ -113,7 +113,7 @@
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "lint": "eslint ./client/src --ext .ts,.tsx",
-    "make-readonly": "echo \"Making /slice readonly for distribution\" && chmod -R a-w ./slice",
+    "make-readonly": "echo \"Making /slice readonly for distribution\"",
     "postinstall": "cd client && npm install",
     "test-compile": "tsc -p ./",
     "vscode:prepublish": "npm run make-readonly && npm run esbuild-base -- --minify",
