@@ -221,7 +221,7 @@ function logMessage(
   type: "Info" | "Error" | "Warning" = "Info"
 ) {
   const timestamp = new Date().toLocaleTimeString();
-  const formattedMessage = `[${type}  - ${timestamp}] ${message}`;
+  const formattedMessage = `[${type} - ${timestamp}] ${message}`;
   traceOutputChannel.appendLine(formattedMessage);
 }
 

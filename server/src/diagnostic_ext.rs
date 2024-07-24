@@ -82,6 +82,7 @@ pub fn process_diagnostics(
 ///
 /// This function iterates over all configuration sets, collects all tracked file URIs,
 /// and then publishes empty diagnostics to clear existing ones for each URI.
+// TODO inline this in `main`: the only place where it's used.
 pub async fn clear_diagnostics(client: &Client, configuration_sets: &[ConfigurationSet]) {
     let mut all_tracked_files = HashSet::new();
     for configuration_set in configuration_sets.iter() {

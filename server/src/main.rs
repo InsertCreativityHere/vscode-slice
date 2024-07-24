@@ -9,7 +9,7 @@ use crate::slice_config::compute_slice_options;
 use std::ops::DerefMut;
 use std::{collections::HashMap, path::Path};
 use tokio::sync::Mutex;
-use tower_lsp::{jsonrpc::Error, lsp_types::*, Client, LanguageServer, LspService, Server};
+use tower_lsp::{lsp_types::*, Client, LanguageServer, LspService, Server};
 use utils::{convert_slice_path_to_uri, span_to_range, url_to_sanitized_file_path};
 
 mod configuration_set;
@@ -73,10 +73,11 @@ impl Backend {
         }
     }
 
-    async fn handle_file_change(&self, file_path: &Path) {
-        self.client
-            .log_message(MessageType::INFO, format!("File '{}' changed", file_path.display()))
-            .await;
+    async fn handle_file_change(&self, file_uri: &Url) {
+        let Some(file_path) = url_to_sanitized_file_path(file_uri) else {
+            self.client.log_message(MessageType::WARNING, format!("unsupported file path: '{file_uri}'")).await;
+            return;
+        };
 
         let mut session_guard = self.session.lock().await;
         let Session { configuration_sets, server_config } = session_guard.deref_mut();
@@ -135,7 +136,7 @@ impl Backend {
                 .publish_diagnostics(uri, lsp_diagnostics, None)
                 .await;
         }
-    }
+    } // TODO
 
     /// Triggers and compilation and publishes any diagnostics that are reported.
     /// It does this for all configuration sets.
@@ -155,6 +156,14 @@ impl Backend {
             // Publish those diagnostics.
             publish_diagnostics_for_set(&self.client, diagnostics, configuration_set).await;
         }
+    } // TODO
+
+    async fn warn(&self, message: impl std::fmt::Display) {
+        self.client.log_message(MessageType::WARNING, message).await;
+    }
+
+    async fn log(&self, message: impl std::fmt::Display) {
+        self.client.log_message(MessageType::LOG, message).await;
     }
 }
 
@@ -175,6 +184,8 @@ impl LanguageServer for Backend {
     }
 
     async fn initialized(&self, _: InitializedParams) {
+        self.log("Server initialized!").await;
+
         // Now that the server and client are fully initialized, it's safe to compile and publish any diagnostics.
         self.compile_and_publish_diagnostics().await;
     }
@@ -184,20 +195,21 @@ impl LanguageServer for Backend {
     }
 
     async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
-        self.client
-            .log_message(MessageType::INFO, "Extension settings changed")
-            .await;
+        self.log("Detected change in server configuration.").await;
 
         // Explicit scope to ensure the session lock guard is dropped before we start compilation.
         {
             let mut session_guard = self.session.lock().await;
 
-            // When the configuration changes, any of the files in the workspace could be impacted. Therefore, we need to
-            // clear the diagnostics for all files and then re-publish them.
+            // When the configuration changes, any of the files in the workspace could be impacted.
+            // Therefore, we need to clear the diagnostics for all files and then re-publish them.
+            self.log("  clearing diagnostics.").await;
             clear_diagnostics(&self.client, &session_guard.configuration_sets).await;
 
             // Update the stored configuration sets from the data provided in the client notification
+            self.log(format!("Received json params:\n{params:?}")).await;
             session_guard.update_configurations_from_params(params);
+            self.log(format!("Parsed config:\n{:?}", session_guard.configuration_sets)).await;
         }
 
         // Trigger a compilation and publish the diagnostics for all files
@@ -209,63 +221,84 @@ impl LanguageServer for Backend {
         params: GotoDefinitionParams,
     ) -> tower_lsp::jsonrpc::Result<Option<GotoDefinitionResponse>> {
         let uri = params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
+        let pos = params.text_document_position_params.position;
+        self.log(format!("GotoDef in file '{uri}' @ {pos:?}")).await;
 
         // Convert the URI to a file path and back to a URL to ensure that the URI is formatted correctly for Windows.
-        let file_path = url_to_sanitized_file_path(&uri).ok_or_else(Error::internal_error)?;
+        let Some(file_path) = url_to_sanitized_file_path(&uri) else {
+            self.warn(format!("  unsupported uri: '{uri}'")).await;
+            return Ok(None);
+        };
 
-        // Find the configuration set that contains the file
+        // Find the configuration set that contains the file.
         let session_guard = self.session.lock().await;
-        let configuration_sets = &session_guard.configuration_sets;
+        for configuration_set in &session_guard.configuration_sets {
+            let files = &configuration_set.compilation_data.files;
+            if let Some(file) = files.get(&file_path) {
+                // Get the definition's span and convert it to a 'GotoDefinitionResponse'.
+                let definition_span = get_definition_span(file, pos);
+                match &definition_span {
+                    Some(span) => self.log(format!("  definition found at: '{span:?}'")).await,
+                    None => self.log(format!("  no definition at: '{pos:?}'")).await,
+                }
+                let response = definition_span.map(|span| {
+                    let range = span_to_range(span);
+                    GotoDefinitionResponse::Scalar(Location { uri, range })
+                });
+                return Ok(response);
+            }
+        }
 
-        // Get the definition span and convert it to a GotoDefinitionResponse
-        Ok(configuration_sets.iter().find_map(|set| {
-            let files = &set.compilation_data.files;
-            files
-                .get(&file_path)
-                .and_then(|file| get_definition_span(file, position))
-                .map(|location| {
-                    GotoDefinitionResponse::Scalar(Location {
-                        uri: uri.clone(),
-                        range: span_to_range(location),
-                    })
-                })
-        }))
+        // Reaching here means the file wasn't in any of the configuration sets.
+        self.log(format!("  file is not tracked: '{uri}'")).await;
+        Ok(None)
     }
 
     async fn hover(&self, params: HoverParams) -> tower_lsp::jsonrpc::Result<Option<Hover>> {
         let uri = params.text_document_position_params.text_document.uri;
-        let position = params.text_document_position_params.position;
+        let pos = params.text_document_position_params.position;
+        self.log(format!("Hover in file '{uri}' @ {pos:?}")).await;
 
         // Convert the URI to a file path and back to a URL to ensure that the URI is formatted correctly for Windows.
-        let file_path = url_to_sanitized_file_path(&uri).ok_or_else(Error::internal_error)?;
+        let Some(file_path) = url_to_sanitized_file_path(&uri) else {
+            self.warn(format!("  unsupported uri: '{uri}'")).await;
+            return Ok(None);
+        };
 
-        // Find the configuration set that contains the file and get the hover info
+        // Find the configuration set that contains the file and get the hover info.
         let session_guard = self.session.lock().await;
-        let configuration_sets = &session_guard.configuration_sets;
+        for configuration_set in &session_guard.configuration_sets {
+            let files = &configuration_set.compilation_data.files;
+            if let Some(file) = files.get(&file_path) {
+                let message = get_hover_message(file, pos);
+                match &message {
+                    Some(s) => self.log(format!("  emitting message: '{s}'")).await,
+                    None => self.log("  no message found").await,
+                }
+                let response = message.map(|s| {
+                    let contents = HoverContents::Scalar(MarkedString::String(s));
+                    // TODO we should emit the range that the `slicec` gave us.
+                    Hover { contents, range: None }
+                });
+                return Ok(response);
+            }
+        }
 
-        Ok(configuration_sets.iter().find_map(|set| {
-            let files = &set.compilation_data.files;
-            files
-                .get(&file_path)
-                .and_then(|file| get_hover_message(file, position))
-                .map(|message| Hover {
-                    contents: HoverContents::Scalar(MarkedString::String(message)),
-                    range: None,
-                })
-        }))
+        // Reaching here means the file wasn't in any of the configuration sets.
+        self.log(format!("  file is not tracked: '{uri}'")).await;
+        Ok(None)
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        if let Some(file_path) = url_to_sanitized_file_path(&params.text_document.uri) {
-            self.handle_file_change(&file_path).await;
-        }
+        let uri = &params.text_document.uri;
+        self.log(format!("File '{uri}' was opened")).await;
+        self.handle_file_change(uri).await;
     }
 
     async fn did_save(&self, params: DidSaveTextDocumentParams) {
-        if let Some(file_path) = url_to_sanitized_file_path(&params.text_document.uri) {
-            self.handle_file_change(&file_path).await;
-        }
+        let uri = &params.text_document.uri;
+        self.log(format!("File '{uri}' was saved")).await;
+        self.handle_file_change(uri).await;
     }
 }
 
