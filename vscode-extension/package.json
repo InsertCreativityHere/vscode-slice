@@ -2,7 +2,7 @@
   "name": "slice",
   "displayName": "Slice",
   "description": "Slice language support for Visual Studio Code",
-  "icon": "images/icon.png",
+  "icon": "./images/icon.png",
   "version": "4.4.2",
   "publisher": "ZeroCInc",
   "license": "BSD-3-Clause",
@@ -101,10 +101,11 @@
   "homepage": "https://zeroc.com/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zeroc-ice/vscode-slice"
+    "url": "https://github.com/zeroc-ice/slice-tools",
+    "directory": "vscode-extension"
   },
   "bugs": {
-    "url": "https://github.com/zeroc-ice/vscode-slice/issues"
+    "url": "https://github.com/zeroc-ice/slice-tools/issues"
   },
   "scripts": {
     "build:prod": "NODE_ENV=production tsc -b",
