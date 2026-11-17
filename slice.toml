@@ -1,0 +1,10 @@
+# slice.toml — provenance for vendored Slice files
+#
+# Each [source.<name>] section describes an upstream repository and which files to
+# vendor into this repo. Run `python build/sync-slice.py` to synchronize.
+
+[source.icerpc]
+repo    = "https://github.com/icerpc/icerpc-slice"
+rev     = "b4171b5f49930fcc8268cd9b2bc122b849abd34b"
+dest    = "vscode-extension/slice"
+include = ["**/*.slice"]

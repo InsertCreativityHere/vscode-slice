@@ -1,21 +1,16 @@
-# IceRPC Slice files
+# Built-in Slice Files
 
-This directory provides [Slice] definitions shared by all IceRPC implementations.
+The Slice files in this directory ship with the extension as its built-in Slice definitions. They are vendored from
+[icerpc-slice](https://github.com/icerpc/icerpc-slice), so change them there first and then sync them to this
+repository.
 
-| Subdirectory       | Description                                                                                                                                                                                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| IceRpc             | Types provided by all IceRPC implementations. These types are IceRPC-specific.                                                                                                                                                                                                 |
-| IceRpc/Ice         | Types and interfaces provided for interop with [Ice] applications. They are defined using Ice's [original Slice language][ice-slice].                                                                                                                                          |
-| IceRpc/**/Internal | Types used by IceRPC implementations to implement the [ice][ice-protocol] protocol, the [icerpc][icerpc-protocol] protocol, the [Slic] protocol and more. These are internal IceRPC implementation details—applications built with IceRPC don't need to see these definitions. |
-| WellKnownTypes     | Custom types such as Uri and TimeStamp. These well-known types are RPC-independent.                                                                                                                                                                                            |
+[slice.toml](../../slice.toml) names the upstream revision and the files to vendor. To sync the files, run this from
+the repository root:
 
-The copy of record for these Slice files is in this repository. Each IceRPC implementation is expected to create its
-own exact clone of these Slice files. For example, see the [sync-slice.py] Python script in icerpc-csharp.
+```shell
+python build/sync-slice.py
+```
 
-[Ice]: https://github.com/zeroc-ice/ice
-[ice-slice]: https://docs.zeroc.com/ice/3.8/cpp/the-slice-language
-[ice-protocol]: https://docs.icerpc.dev/icerpc/ice-protocol/protocol-frames
-[icerpc-protocol]: https://docs.icerpc.dev/icerpc/icerpc-protocol/mapping-rpcs-to-streams
-[Slic]: https://docs.icerpc.dev/icerpc/slic-transport/protocol-frames
-[Slice]: https://docs.icerpc.dev/slice
-[sync-slice.py]: https://github.com/icerpc/icerpc-csharp/blob/main/build/sync-slice.py
+To check that the files match upstream, add `--verify`. CI runs this check on every pull request.
+
+The script requires Python 3.11 or later.
