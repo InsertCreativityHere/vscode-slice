@@ -9,3 +9,29 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+
+  - package-ecosystem: "npm"
+    directories: ["/vscode-extension", "/vscode-extension/client"]
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    ignore:
+      # These set the oldest VS Code the extension supports, so they move with engines.vscode.
+      - dependency-name: "@types/vscode"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "vscode-languageclient"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm:
+        patterns: ["*"]
+
+  - package-ecosystem: "cargo"
+    directory: "/slice-language-server"
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      cargo:
+        patterns: ["*"]
