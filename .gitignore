@@ -3,3 +3,6 @@ node_modules
 out
 .DS_Store
 target
+
+# Copied from the top-level 'syntaxes' folder when packaging the extension.
+/vscode-extension/syntaxes
