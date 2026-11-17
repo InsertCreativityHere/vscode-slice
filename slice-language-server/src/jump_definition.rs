@@ -2,8 +2,8 @@
 
 use crate::utils::position_to_location;
 use slicec::grammar::{
-    Class, Commentable, CustomType, Entity, Enum, Enumerator, Exception, Field, Identifier, Interface, Message,
-    MessageComponent, NamedSymbol, Operation, Struct, Symbol, TypeAlias, TypeRef, TypeRefDefinition, Types,
+    Commentable, CustomType, Entity, Enum, Enumerator, Field, Identifier, Interface, Message, MessageComponent,
+    NamedSymbol, Operation, Struct, Symbol, TypeAlias, TypeRef, TypeRefDefinition, Types,
 };
 use slicec::slice_file::{Location, SliceFile, Span};
 use slicec::visitor::Visitor;
@@ -49,10 +49,6 @@ impl JumpVisitor {
                 .see
                 .iter()
                 .for_each(|s| self.check_and_set_span(s.linked_entity(), s.span()));
-            for throws in &comment.throws {
-                self.check_message_links(&throws.message);
-                self.check_and_set_span(throws.thrown_type(), throws.span());
-            }
         }
     }
 
@@ -81,30 +77,6 @@ impl Visitor for JumpVisitor {
         self.check_comment(struct_def);
     }
 
-    fn visit_class(&mut self, class_def: &Class) {
-        self.check_comment(class_def);
-        if let Some(base_ref) = &class_def.base {
-            if self.search_location.is_within(&base_ref.span) {
-                let TypeRefDefinition::Patched(type_def) = &base_ref.definition else {
-                    return;
-                };
-                self.found_span = Some(type_def.borrow().raw_identifier().span().clone());
-            }
-        }
-    }
-
-    fn visit_exception(&mut self, exception_def: &Exception) {
-        self.check_comment(exception_def);
-        if let Some(base_ref) = &exception_def.base {
-            if self.search_location.is_within(&base_ref.span) {
-                let TypeRefDefinition::Patched(type_def) = &base_ref.definition else {
-                    return;
-                };
-                self.found_span = Some(type_def.borrow().raw_identifier().span().clone());
-            }
-        }
-    }
-
     fn visit_interface(&mut self, interface_def: &Interface) {
         self.check_comment(interface_def);
         for base_ref in &interface_def.bases {
@@ -123,14 +95,6 @@ impl Visitor for JumpVisitor {
 
     fn visit_operation(&mut self, operation_def: &Operation) {
         self.check_comment(operation_def);
-        for base_ref in &operation_def.exception_specification {
-            if self.search_location.is_within(&base_ref.span) {
-                let TypeRefDefinition::Patched(type_def) = &base_ref.definition else {
-                    continue;
-                };
-                self.found_span = Some(type_def.borrow().raw_identifier().span().clone());
-            };
-        }
     }
 
     fn visit_custom_type(&mut self, custom_type_def: &CustomType) {
@@ -156,7 +120,6 @@ impl Visitor for JumpVisitor {
             };
             let entity_def: Option<&dyn Entity> = match type_def.borrow().concrete_type() {
                 Types::Struct(x) => Some(x),
-                Types::Class(x) => Some(x),
                 Types::Enum(x) => Some(x),
                 Types::CustomType(x) => Some(x),
                 _ => None,

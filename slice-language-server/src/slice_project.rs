@@ -4,7 +4,7 @@ use crate::configuration::{compute_slice_options, ServerConfig, ProjectConfig};
 use crate::utils::sanitize_path;
 use slicec::ast::Ast;
 use slicec::compilation_state::CompilationState;
-use slicec::diagnostics::Diagnostic;
+use slicec::diagnostics::AnnotatedDiagnostic;
 use slicec::slice_file::SliceFile;
 use slicec::slice_options::SliceOptions;
 use std::collections::HashMap;
@@ -51,25 +51,25 @@ impl SliceProject {
         Self { project_config, ..Self::default() }
     }
 
-    pub fn trigger_compilation(&mut self, server_config: &ServerConfig) -> Vec<Diagnostic> {
+    pub fn trigger_compilation(&mut self, server_config: &ServerConfig) -> Vec<AnnotatedDiagnostic> {
         // Re-compute the `slice_options` we're going to pass into the compiler, if necessary.
         let slice_options = self.cached_slice_options.get_or_insert_with(|| {
             compute_slice_options(server_config, &self.project_config)
         });
 
         // Perform the compilation.
-        let compilation_state = slicec::compile_from_options(slice_options, |_| {}, |_| {});
-        let CompilationState { ast, diagnostics, files } = compilation_state;
+        let compilation_state = slicec::compile_from_options(slice_options);
 
-        // Process the diagnostics (filter out allowed lints, and update diagnostic levels as necessary).
-        let updated_diagnostics = diagnostics.into_updated(&ast, &files, slice_options);
+        // Process the diagnostics (update diagnostic levels as necessary, and remove duplicates).
+        let annotated_diagnostics = compilation_state.get_annotated_diagnostics(slice_options);
+        let CompilationState { ast, files, .. } = compilation_state;
 
         // Convert the stringified paths returned by `slicec` to actual PathBuf objects.
         let files = files.into_iter().map(|f| (PathBuf::from(&f.relative_path), f)).collect();
 
         // Store the data we got from compiling, then return the diagnostics so they can be published.
         self.compilation_data = CompilationData { ast, files };
-        updated_diagnostics
+        annotated_diagnostics
     }
 }
 

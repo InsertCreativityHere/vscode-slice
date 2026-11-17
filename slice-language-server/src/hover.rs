@@ -53,7 +53,6 @@ impl HoverVisitor {
             Primitive::Float32 => ("A", "32-bit floating point type."),
             Primitive::Float64 => ("A", "64-bit floating point type."),
             Primitive::String => ("A", "UTF-8 string."),
-            Primitive::AnyClass => ("A", "instance of any Slice class."),
         }
     }
 }

@@ -14,7 +14,7 @@ This extension provides support for the Slice Interface Definition Language (IDL
 This extension supports syntax highlighting and validation for the following Slice file types:
 
 - `.ice` files, which use the [original Slice](https://doc.zeroc.com/ice/latest/the-slice-language) syntax
-- `.slice` files, which use the [latest Slice](https://docs.icerpc.dev/slice2) syntax
+- `.slice` files, which use the [latest Slice](https://docs.icerpc.dev/slice) syntax
 
 ### Error Detection and Reporting
 

@@ -4,7 +4,7 @@ use crate::configuration::compute_slice_options;
 use crate::diagnostic_handler::{process_diagnostics, publish_diagnostics_for_project};
 use crate::hover::get_hover_message;
 use crate::jump_definition::get_definition_span;
-use crate::notifications::{ShowNotification, ShowNotificationParams};
+use crate::notifications::ShowNotification;
 use crate::server_state::ServerState;
 use std::collections::HashMap;
 use std::ops::DerefMut;
@@ -118,20 +118,12 @@ impl SliceLanguageServer {
             );
         }
 
-        // If there are multiple diagnostics for the same span, that have the same message, deduplicate them.
-        diagnostics.dedup_by(|d1, d2| d1.span() == d2.span() && d1.message() == d2.message());
-
-        // Group the diagnostics by file since diagnostics are published per file and diagnostic.span contains the URL.
+        // Group the diagnostics by file since diagnostics are published per file and each span names its file.
         // Process diagnostics and update publish_map.
-        // Any diagnostics that do not have a span are returned for further processing.
-        let spanless_diagnostics = process_diagnostics(diagnostics, &mut publish_map);
-        for diagnostic in spanless_diagnostics {
-            show_popup(
-                &self.client_handle,
-                diagnostic.message(),
-                notifications::MessageType::Error,
-            )
-            .await;
+        // Any diagnostics that do not have a span are returned as popups.
+        let popups = process_diagnostics(diagnostics, &mut publish_map);
+        for popup in popups {
+            self.client_handle.send_notification::<ShowNotification>(popup).await;
         }
 
         // Publish the diagnostics for each file.
@@ -282,11 +274,4 @@ impl LanguageServer for SliceLanguageServer {
             self.handle_file_change(&file_path).await;
         }
     }
-}
-
-pub async fn show_popup(client_handle: &Client, message: String, message_type: notifications::MessageType) {
-    let show_notification_params = ShowNotificationParams { message, message_type };
-    client_handle
-        .send_notification::<ShowNotification>(show_notification_params)
-        .await;
 }
