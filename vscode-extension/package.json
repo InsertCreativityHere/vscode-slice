@@ -117,9 +117,12 @@
     "make-readonly": "echo \"Making /slice readonly for distribution\" && run-script-os",
     "make-readonly:nix": "chmod -R a-w ./slice",
     "make-readonly:win32": "attrib +r /s /d /l .\\slice\\*",
+    "sync-syntaxes": "node -e \"require('fs').cpSync('../syntaxes', 'syntaxes', { recursive: true })\"",
     "postinstall": "cd client && npm install",
+    "precompile": "npm run sync-syntaxes",
+    "prewatch": "npm run sync-syntaxes",
     "test-compile": "tsc -p ./",
-    "vscode:prepublish": "npm run make-readonly && npm run esbuild-base -- --minify",
+    "vscode:prepublish": "npm run sync-syntaxes && npm run make-readonly && npm run esbuild-base -- --minify",
     "watch": "tsc -b -w"
   },
   "devDependencies": {
