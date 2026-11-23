@@ -128,3 +128,34 @@ impl Visitor for JumpVisitor {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn type_reference_resolves_to_definition_in_other_file() {
+        // Arrange
+        let line = "
+            module Tests
+
+            struct Line {
+                start: Point
+            }
+        ";
+        let point = "
+            module Tests
+
+            struct Point {
+                x: int32
+            }
+        ";
+        let state = slicec::compile_from_strings(&[line, point], None);
+
+        // Act
+        let span = get_definition_span(&state.files[0], Position::new(4, 24));
+
+        // Assert
+        assert_eq!(span, Some(Span::new((4, 20).into(), (4, 25).into(), "string-1")));
+    }
+}

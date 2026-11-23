@@ -100,3 +100,60 @@ fn try_into_lsp_diagnostic_related_information(
         message: note.message.clone(),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::notifications::MessageType;
+    use slicec::diagnostics::Snippet;
+    use slicec::slice_file::Span;
+
+    fn diagnostic(level: DiagnosticLevel, snippet: Option<Snippet>) -> AnnotatedDiagnostic {
+        AnnotatedDiagnostic {
+            message: "test message".to_owned(),
+            level,
+            code: "Test".to_owned(),
+            snippet,
+            notes: vec![],
+            reported_by: vec![],
+        }
+    }
+
+    #[test]
+    fn lint_is_published_unless_allowed() {
+        // Arrange
+        let file = concat!(env!("CARGO_MANIFEST_DIR"), "/Test.slice");
+        let span = Span::new((3, 5).into(), (3, 23).into(), file);
+        let snippet = Snippet {
+            span,
+            text: String::new(),
+        };
+        let diagnostics = vec![
+            diagnostic(DiagnosticLevel::Warning, Some(snippet.clone())),
+            diagnostic(DiagnosticLevel::Allowed, Some(snippet)),
+        ];
+        let mut publish_map = HashMap::new();
+
+        // Act
+        process_diagnostics(diagnostics, &mut publish_map);
+
+        // Assert
+        let uri = Url::from_file_path(file).unwrap();
+        let severities = publish_map[&uri].iter().map(|d| d.severity).collect::<Vec<_>>();
+        assert_eq!(severities, [Some(DiagnosticSeverity::WARNING)]);
+    }
+
+    #[test]
+    fn diagnostic_without_span_becomes_popup_of_its_level() {
+        // Arrange
+        let diagnostics = vec![diagnostic(DiagnosticLevel::Warning, None)];
+        let mut publish_map = HashMap::new();
+
+        // Act
+        let popups = process_diagnostics(diagnostics, &mut publish_map);
+
+        // Assert
+        let [popup] = popups.as_slice() else { panic!("expected one popup, got {popups:?}") };
+        assert!(matches!(popup.message_type, MessageType::Warning));
+    }
+}

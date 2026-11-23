@@ -90,3 +90,27 @@ impl Visitor for HoverVisitor {
         self.found_message = type_description;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hover_on_primitive_type_describes_it() {
+        // Arrange
+        let slice = "
+            module Tests
+
+            struct Point {
+                x: int32
+            }
+        ";
+        let state = slicec::compile_from_strings(&[slice], None);
+
+        // Act
+        let message = get_hover_message(&state.files[0], Position::new(4, 20));
+
+        // Assert
+        assert_eq!(message.as_deref(), Some("A 32-bit signed integer type."));
+    }
+}

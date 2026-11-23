@@ -64,3 +64,20 @@ pub fn position_to_location(position: Position) -> Location {
     let col = (position.character + 1) as usize;
     Location { row, col }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn span_to_range_converts_one_based_positions_to_zero_based() {
+        // Arrange
+        let span = Span::new(Location { row: 1, col: 1 }, Location { row: 3, col: 8 }, "string-0");
+
+        // Act
+        let range = span_to_range(span);
+
+        // Assert
+        assert_eq!(range, Range::new(Position::new(0, 0), Position::new(2, 7)));
+    }
+}
