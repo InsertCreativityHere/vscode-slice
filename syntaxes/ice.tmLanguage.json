@@ -1217,7 +1217,7 @@
                 {"include": "#storage.modifier"},
                 {
                     "name": "meta.bool.ice",
-                    "begin": "\\bbool\\b",
+                    "begin": "\\bbool\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1245,7 +1245,7 @@
                 },
                 {
                     "name": "meta.byte.ice",
-                    "begin": "\\bbyte\\b",
+                    "begin": "\\bbyte\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1273,7 +1273,7 @@
                 },
                 {
                     "name": "meta.short.ice",
-                    "begin": "\\bshort\\b",
+                    "begin": "\\bshort\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1301,7 +1301,7 @@
                 },
                 {
                     "name": "meta.int.ice",
-                    "begin": "\\bint\\b",
+                    "begin": "\\bint\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1329,7 +1329,7 @@
                 },
                 {
                     "name": "meta.long.ice",
-                    "begin": "\\blong\\b",
+                    "begin": "\\blong\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1357,7 +1357,7 @@
                 },
                 {
                     "name": "meta.float.ice",
-                    "begin": "\\bfloat\\b",
+                    "begin": "\\bfloat\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1385,7 +1385,7 @@
                 },
                 {
                     "name": "meta.double.ice",
-                    "begin": "\\bdouble\\b",
+                    "begin": "\\bdouble\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1413,7 +1413,7 @@
                 },
                 {
                     "name": "meta.string.ice",
-                    "begin": "\\bstring\\b",
+                    "begin": "\\bstring\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1441,7 +1441,7 @@
                 },
                 {
                     "name": "meta.object.ice",
-                    "begin": "\\bObject\\b",
+                    "begin": "\\bObject\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1469,7 +1469,7 @@
                 },
                 {
                     "name": "meta.localobject.ice",
-                    "begin": "\\bLocalObject\\b",
+                    "begin": "\\bLocalObject\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1497,7 +1497,7 @@
                 },
                 {
                     "name": "meta.value.ice",
-                    "begin": "\\bValue\\b",
+                    "begin": "\\bValue\\b(?![:\\\\])",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1525,7 +1525,7 @@
                 },
                 {
                     "name": "meta.type.ice",
-                    "begin": "[:\\\\]*\\b[:\\w\\\\]+\\b",
+                    "begin": "[:\\w\\\\]+",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [{"include": "#storage.types.custom"}]}
@@ -1572,7 +1572,7 @@
         "storage.types": {
             "patterns": [
                 {
-                    "match": "\\b(?:(bool)|(byte)|(short)|(int)|(long)|(float)|(double)|(string)|(Object)|(LocalObject)|(Value))\\b",
+                    "match": "\\b(?:(bool)|(byte)|(short)|(int)|(long)|(float)|(double)|(string)|(Object)|(LocalObject)|(Value))\\b(?![:\\\\])",
                     "captures": {
                         "1": {"name": "storage.type.bool.ice"},
                         "2": {"name": "storage.type.byte.ice"},
@@ -1621,7 +1621,7 @@
         },
         "storage.types.void": {
             "name": "storage.type.void.ice",
-            "match": "\\bvoid\\b"
+            "match": "\\bvoid\\b(?![:\\\\])"
         },
         "storage.modifier": {
             "patterns": [
