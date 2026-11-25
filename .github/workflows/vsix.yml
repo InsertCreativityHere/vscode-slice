@@ -18,26 +18,22 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        # `test` is set on the targets the runner can execute.
         include:
-          - os: macos-26
+          - os: macos-26-intel
             target: x86_64-apple-darwin
             bin: slice-language-server
           - os: macos-26
             target: aarch64-apple-darwin
             bin: slice-language-server
-            test: true
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             bin: slice-language-server
-            test: true
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
             bin: slice-language-server
           - os: windows-2022
             target: x86_64-pc-windows-msvc
             bin: slice-language-server.exe
-            test: true
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -50,7 +46,6 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Test
-        if: matrix.test
         run: cargo test --manifest-path slice-language-server/Cargo.toml --release --target ${{ matrix.target }}
 
       - name: Upload language server
