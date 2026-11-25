@@ -1165,11 +1165,10 @@
         "storage.class.implements": {
             "patterns": [
                 {
-                    "begin": "(?<!\\\\)(?:(\\bimplements\\b)|(:))",
+                    "begin": "(?<!\\\\)(\\bimplements\\b)",
                     "end": "(?=})|((?=;))",
                     "beginCaptures": {
                         "1": {"name": "storage.modifier.implements.ice"},
-                        "2": {"name": "punctuation.separator.modifier.implements.ice"}
                     },
                     "endCaptures": {
                         "1": {"name": "invalid.illegal.missing-brace.ice"}
