@@ -731,7 +731,7 @@
                                 {"include": "#standard"},
                                 {"include": "#storage.modifier"},
                                 {
-                                    "begin": "(\\\\?[:\\w]+)|(?=\\>)",
+                                    "begin": "([:\\w\\\\]+)|(?=\\>)",
                                     "end": "(?=;|})",
                                     "beginCaptures": {
                                         "1": {
@@ -798,7 +798,7 @@
                                 {"include": "#standard"},
                                 {"include": "#storage.modifier"},
                                 {
-                                    "begin": "(\\\\?[:\\w]+)|(?=\\>)",
+                                    "begin": "([:\\w\\\\]+)|(?=\\>)",
                                     "end": "(?=;|})",
                                     "beginCaptures": {
                                         "1": {
@@ -821,7 +821,7 @@
                                                 {"include": "#standard"},
                                                 {"include": "#storage.modifier"},
                                                 {
-                                                    "begin": "(\\\\?[:\\w]+)|(?=\\>)",
+                                                    "begin": "([:\\w\\\\]+)|(?=\\>)",
                                                     "end": "(?=;|})",
                                                     "beginCaptures": {
                                                         "1": {
@@ -904,7 +904,7 @@
                                     "patterns": [
                                         {"include": "#standard"},
                                         {
-                                            "begin": "\\\\?[:\\w]+",
+                                            "begin": "[:\\w\\\\]+",
                                             "end": "(?={|}|;)|(,)",
                                             "beginCaptures": {
                                                 "0": {"patterns": [{"include": "#storage.types"}]}
@@ -942,7 +942,7 @@
                 {"include": "#storage.modifier"},
                 {
                     "name": "meta.operation.ice",
-                    "begin": "\\\\?[:\\w]+",
+                    "begin": "[:\\w\\\\]+",
                     "end": "(;)|((?=}))",
                     "beginCaptures": {
                         "0": {"patterns": [
@@ -992,7 +992,7 @@
                                                     "patterns": [
                                                         {"include": "#standard"},
                                                         {
-                                                            "begin": "\\\\?[:\\w]+",
+                                                            "begin": "[:\\w\\\\]+",
                                                             "end": "(?=;|})|(,)",
                                                             "beginCaptures": {
                                                                 "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1010,7 +1010,7 @@
                                         },
                                         {"include": "#storage.modifier"},
                                         {
-                                            "begin": "\\\\?[:\\w]+",
+                                            "begin": "[:\\w\\\\]+",
                                             "end": "(?=\\))|(?<=,)",
                                             "beginCaptures": {
                                                 "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1074,7 +1074,7 @@
                                     "patterns": [
                                         {"include": "#standard"},
                                         {
-                                            "begin": "\\\\?[:\\w]+",
+                                            "begin": "[:\\w\\\\]+",
                                             "end": "(?={|})|(,)",
                                             "beginCaptures": {
                                                 "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1146,7 +1146,7 @@
                                     "patterns": [
                                         {"include": "#standard"},
                                         {
-                                            "begin": "\\\\?[:\\w]+",
+                                            "begin": "[:\\w\\\\]+",
                                             "end": "(?=}|;)",
                                             "beginCaptures": {
                                                 "0": {"patterns": [{"include": "#storage.types"}]}
@@ -1183,7 +1183,7 @@
                     "patterns": [
                         {"include": "#standard"},
                         {
-                            "begin": "\\\\?[:\\w]+",
+                            "begin": "[:\\w\\\\]+",
                             "end": "(?={|}|;)|(,)",
                             "beginCaptures": {
                                 "0": {"patterns": [{"include": "#storage.types"}]}
