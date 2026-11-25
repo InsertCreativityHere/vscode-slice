@@ -17,7 +17,6 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
-          ~/.cargo/bin/
           ~/.cargo/registry/index/
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
@@ -25,18 +24,12 @@ runs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
-    - name: Install Cross Tools
-      if: ${{ inputs.target == 'aarch64-unknown-linux-gnu' }}
-      run: sudo apt update && sudo apt install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu --yes
-      shell: bash
     - name: Rust Toolchain
       uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
       with:
         toolchain: stable
         targets: ${{ inputs.target }}
     - name: Build Slice Compiler
-      env:
-        CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
       run: |
         cargo build --manifest-path slice-language-server/Cargo.toml ${{ inputs.cargo-build-args }} --target ${{ inputs.target }}
       shell: bash
