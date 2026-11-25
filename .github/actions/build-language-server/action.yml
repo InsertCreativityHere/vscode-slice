@@ -21,9 +21,9 @@ runs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           slice-language-server/target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-${{ inputs.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
-          ${{ runner.os }}-cargo-
+          ${{ runner.os }}-${{ inputs.target }}-cargo-
     - name: Rust Toolchain
       uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
       with:
