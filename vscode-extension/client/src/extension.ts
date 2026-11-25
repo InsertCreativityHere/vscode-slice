@@ -112,16 +112,16 @@ export async function activate(context: ExtensionContext) {
       : process.env.BUILT_IN_SLICE_PATH;
 
     if (isProduction) {
+      const archPathComponent = process.arch === "arm64" ? "aarch64" : "x86_64";
+
       switch (process.platform) {
         case "darwin": // macOS
-          command = `${serverPath}${
-            process.arch === "arm64" ? "aarch64" : "x86_64"
-          }-apple-darwin/release/slice-language-server`;
+          command = `${serverPath}${archPathComponent}-apple-darwin/release/slice-language-server`;
           break;
         case "win32": // Windows
           let commands = [
-            `${serverPath}x86_64-pc-windows-msvc/release/slice-language-server.exe`,
-            `${serverPath}x86_64-pc-windows-gnu/release/slice-language-server.exe`,
+            `${serverPath}${archPathComponent}-pc-windows-msvc/release/slice-language-server.exe`,
+            `${serverPath}${archPathComponent}-pc-windows-gnu/release/slice-language-server.exe`,
           ];
 
           command = commands.find((command) => {
@@ -130,9 +130,7 @@ export async function activate(context: ExtensionContext) {
 
           break;
         case "linux": // Linux
-          command = `${serverPath}${
-            process.arch === "arm64" ? "aarch64" : "x86_64"
-          }-unknown-linux-gnu/release/slice-language-server`;
+          command = `${serverPath}${archPathComponent}-unknown-linux-gnu/release/slice-language-server`;
           break;
         default:
           throw new Error(`Unsupported platform: ${process.platform}`);

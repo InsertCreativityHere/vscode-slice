@@ -38,6 +38,9 @@ jobs:
             target: x86_64-pc-windows-msvc
             bin: slice-language-server.exe
             test: true
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            bin: slice-language-server.exe
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
