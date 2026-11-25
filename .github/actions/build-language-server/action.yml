@@ -7,7 +7,7 @@ inputs:
     default: ""
   target:
     description: "The target platform"
-    required: false
+    required: true
     default: ""
 
 runs:
