@@ -205,32 +205,22 @@
                         {"include": "#standardP"},
                         {
                             "begin": "\\b\\w+\\b",
-                            "end": "(?=\\))|(,)|($)",
+                            "end": "(?=\\))|(,)(?=\\s*\\))|(,)|($)",
                             "beginCaptures": {
                                 "0": {"patterns": [{"include": "#preprocessor.identifier"}]}
                             },
                             "endCaptures": {
-                                "1": {"name": "punctuation.separator.parameter.preprocessor.ice"},
-                                "2": {"name": "invalid.mismatched.parenthesis.ice"}
+                                "1": {"name": "invalid.illegal.separator.comma.ice"},
+                                "2": {"name": "punctuation.separator.parameter.preprocessor.ice"},
+                                "3": {"name": "invalid.mismatched.parenthesis.ice"}
                             },
                             "patterns": [
                                 {"include": "#standardP"}
                             ]
                         },
                         {
-                            "begin": "\\b\\w+\\b",
-                            "end": "(?=\\))|((,))|($)",
-                            "beginCaptures": {
-                                "0": {"name": "punctuation.variable.parameter.preprocessor.ice"}
-                            },
-                            "endCaptures": {
-                                "1": {"name": "punctuation.separator.parameter.preprocessor.ice"},
-                                "2": {"name": "invalid.trailing-comma.ice"},
-                                "3": {"name": "invalid.mismatched.parenthesis.ice"}
-                            },
-                            "patterns": [
-                                {"include": "#standardP"}
-                            ]
+                            "name": "invalid.illegal.separator.comma.ice",
+                            "match": ","
                         },
                         {
                             "begin": "(\\))",
@@ -446,7 +436,7 @@
             "patterns": [
                 {
                     "name": "entity.identifier.preprocessor.ice",
-                    "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+                    "match": "\\b[a-zA-Z_]\\w*\\b"
                 },
                 {"include": "#invalid"}
             ]
@@ -893,10 +883,11 @@
                             "patterns": [
                                 {"include": "#standard"},
                                 {
-                                    "begin": "(?<!\\\\)\\bextends\\b",
+                                    "begin": "(?<!\\\\)(?:(\\bextends\\b)|(:))",
                                     "end": "(?=})|((?=;))",
                                     "beginCaptures": {
-                                        "0": {"name": "storage.modifier.extends.ice"}
+                                        "1": {"name": "storage.modifier.extends.ice"},
+                                        "2": {"name": "punctuation.separator.modifier.extends.ice"}
                                     },
                                     "endCaptures": {
                                         "1": {"name": "invalid.illegal.missing-brace.ice"}
@@ -1066,10 +1057,11 @@
                             "patterns": [
                                 {"include": "#standard"},
                                 {
-                                    "begin": "(?<!\\\\)\\bextends\\b",
+                                    "begin": "(?<!\\\\)(?:(\\bextends\\b)|(:))",
                                     "end": "(?=})",
                                     "beginCaptures": {
-                                        "0": {"name": "storage.modifier.extends.ice"}
+                                        "1": {"name": "storage.modifier.extends.ice"},
+                                        "2": {"name": "punctuation.separator.modifier.extends.ice"}
                                     },
                                     "patterns": [
                                         {"include": "#standard"},
@@ -1135,10 +1127,11 @@
                             "patterns": [
                                 {"include": "#standard"},
                                 {
-                                    "begin": "(?<!\\\\)\\bextends\\b",
+                                    "begin": "(?<!\\\\)(?:(\\bextends\\b)|(:))",
                                     "end": "(?=})|((?=;))",
                                     "beginCaptures": {
-                                        "0": {"name": "storage.modifier.extends.ice"}
+                                        "1": {"name": "storage.modifier.extends.ice"},
+                                        "2": {"name": "punctuation.separator.modifier.extends.ice"}
                                     },
                                     "endCaptures": {
                                         "1": {"name": "invalid.illegal.missing-brace.ice"}
@@ -1172,10 +1165,11 @@
         "storage.class.implements": {
             "patterns": [
                 {
-                    "begin": "(?<!\\\\)\\bimplements\\b",
+                    "begin": "(?<!\\\\)(?:(\\bimplements\\b)|(:))",
                     "end": "(?=})|((?=;))",
                     "beginCaptures": {
-                        "0": {"name": "storage.modifier.implements.ice"}
+                        "1": {"name": "storage.modifier.implements.ice"},
+                        "2": {"name": "punctuation.separator.modifier.implements.ice"}
                     },
                     "endCaptures": {
                         "1": {"name": "invalid.illegal.missing-brace.ice"}
@@ -1634,7 +1628,7 @@
                     ]
                 },
                 {
-                    "match": "(?<!\\\\)\\b(?:(local)|(const)|(idempotent)|(out)|(optional\\s*\\(\\s*[-a-zA-Z0-9_:\\\\]*\\s*\\)))(?:\\b|(?<=\\)))",
+                    "match": "(?<!\\\\)\\b(?:(local)|(const)|(idempotent)|(out)|(optional\\s*\\(\\s*[-\\w:\\\\]*\\s*\\)))(?:\\b|(?<=\\)))",
                     "captures": {
                         "1": {"name": "storage.modifier.local.ice"},
                         "2": {"name": "storage.modifier.const.ice"},
@@ -1643,7 +1637,7 @@
                         "5": {
                             "patterns": [
                                 {
-                                    "match": "(optional)\\s*(\\()\\s*([-a-zA-Z0-9_:\\\\]*)\\s*(\\))",
+                                    "match": "(optional)\\s*(\\()\\s*([-\\w:\\\\]*)\\s*(\\))",
                                     "captures": {
                                         "1": {"name": "storage.modifier.optional.ice"},
                                         "2": {"name": "punctuation.section.group.optional.begin.ice"},
@@ -1671,7 +1665,7 @@
                     "match": "(?<!\\\\)\\b(?:bool|byte|class|const|dictionary|double|enum|exception|extends|false|float|idempotent|implements|int|interface|local|LocalObject|long|module|Object|optional|out|sequence|short|string|struct|throws|true|Value|void)\\b"
                 },
                 {
-                    "match": "(\\\\)?\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+                    "match": "(\\\\)?\\b([a-zA-Z_]\\w*)\\b",
                     "captures": {
                         "1": {"name": "punctuation.escape.backslash.ice"},
                         "2": {
