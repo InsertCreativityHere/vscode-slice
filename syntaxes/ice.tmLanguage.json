@@ -1168,7 +1168,7 @@
                     "begin": "(?<!\\\\)(\\bimplements\\b)",
                     "end": "(?=})|((?=;))",
                     "beginCaptures": {
-                        "1": {"name": "storage.modifier.implements.ice"},
+                        "1": {"name": "storage.modifier.implements.ice"}
                     },
                     "endCaptures": {
                         "1": {"name": "invalid.illegal.missing-brace.ice"}
